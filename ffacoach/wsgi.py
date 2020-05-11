@@ -13,7 +13,8 @@ from os.path import join, dirname
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path=dotenv_path)
 
-from API.API import initAPI
+from API.API import app
 
-app = initAPI()
-app.run(host=os.environ.get("API_HOST_IP"), port=os.environ.get("API_HOST_PORT"), threaded=True)
+if __name__ == "__main__":
+
+    app.run(host=os.environ.get("API_HOST_IP"), port=os.environ.get("API_HOST_PORT"), threaded=True)

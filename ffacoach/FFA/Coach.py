@@ -2,8 +2,9 @@
 import os
 import h2o
 import pandas as pd
-
+import uuid
 from .meta import questions
+import copy
 
 h2o.connect(ip="localhost")
 
@@ -19,30 +20,45 @@ class Coach:
         var_imp = self.model._model_json['output']['variable_importances'].as_data_frame()
         return var_imp["variable"]
 
-    def _prepare_evaluation(self, inputVector):
+    def _prepare_evaluation(self, df_input):
         all_predictors = self.get_model_predictors()
 
         for p in all_predictors:
-            if not p in inputVector:
+            if not p in df_input:
                 print("Warning: %s missing in inputVector" % p)
             else:
                 try:
-                    inputVector[p] = float(inputVector[p])
+                    df_input[p] = pd.to_numeric(df_input[p])
                 except:
                     print("Warning: %s cannot be converted to numeric in inputVector" % p)
-        df_eval = h2o.H2OFrame(inputVector)
-        return df_eval
+
+        return df_input
 
     def get_meta(self):
         return questions
 
-    def estimate_wellbeing(self, inputVector):
+    def estimate_wellbeing(self, input_):
 
         try:
+
+            if isinstance(input_, dict):
+                print("dict")
+                df_input = pd.DataFrame(input_)
+            elif isinstance(input_, list):
+                print("list")
+                df_input = pd.DataFrame(input_)
+            elif isinstance(input_, pd.DataFrame):
+                print("PD")
+            else:
+                raise ValueError('Only dictionary, list or pandas dataframe are supported for prediction.')
+
             # input_vector needs to be a python dictionary, no list!
-            df_eval = self._prepare_evaluation(inputVector)
+            df_input = self._prepare_evaluation(df_input)
+
+            df_eval = h2o.H2OFrame(df_input)
 
             pred = self.model.predict(df_eval)
+
             df_out = pred.as_data_frame()
 
             return df_out
@@ -61,6 +77,38 @@ class Coach:
         except Exception as e:
 
             return None
+
+    def get_simple_prediction(self, inputVector):
+        try:
+            # input_vector needs to be a python dictionary, no list!
+            df_eval = self._prepare_evaluation(inputVector)
+
+            df_predicted = self._get_evaluation(df_eval)
+
+            return df_predicted
+        except Exception as e:
+            print(e)
+            return None, None
+
+    def simulate_input_vectors(self, inputVector):
+
+        copy_inputVector = inputVector.copy()
+
+        try:
+            _uuid = "df_" + str(uuid.uuid1())
+
+            copy_inputVector = self._prepare_evaluation(copy_inputVector)
+
+            copy_inputVector["_id"] = _uuid
+            copy_inputVector["_id_parent"] = None
+            copy_inputVector["new"] = 0
+
+            new_records = self.get_improvement_prep(copy_inputVector)
+
+            return copy_inputVector, new_records
+        except Exception as e:
+            print(e)
+            return None, None
 
     def get_wellbeing_improvements(self, inputVector):
 
@@ -95,10 +143,10 @@ class Coach:
     @staticmethod
     def _validate_q_meta_item(q, val):
 
-        if q["type"] in ["binary", "select"]:
+        flag_itm_exists = False
+        found_itm = None
 
-            flag_itm_exists = False
-            found_itm = None
+        if q["type"] in ["binary", "select"]:
             for itm in q["meta"]:
                 if float(itm["val"]) == float(val):
                     flag_itm_exists = True
@@ -118,10 +166,10 @@ class Coach:
         action_meta = q["actionable"]
 
         # what is the current value of the answer?
-        init_val = curr_val.as_data_frame().iloc[:, 0].values[0]
-        _, init_val_itm = self._validate_q_meta_item(q, init_val)
+        # init_val = curr_val.as_data_frame().iloc[:, 0].values[0]
+        _, init_val_itm = self._validate_q_meta_item(q, curr_val)
 
-        iterate_val = float(curr_val.as_data_frame().iloc[:, 0].values[0])
+        iterate_val = float(curr_val)
 
         next_val_out = None
 
@@ -177,6 +225,50 @@ class Coach:
         else:
             return False, next_val_out, None, init_val_itm, action_meta
 
+    def get_improvement_prep(self, input_vector):
+
+        new_records = []
+
+        for q in self.actionable_q:
+
+            try:
+
+                _uuid = "df_" + str(uuid.uuid1())
+
+                df_mod = input_vector.copy()
+                # df_mod = h2o.deep_copy(df_eval, _uuid)
+
+                impr = {
+                    "varname": q["varname"]
+                }
+                # modify single variable by increment / decrement
+
+                flag_re_run = False
+
+                if "actionable" in q:
+
+                    curr_val = df_mod[q["varname"]]
+
+                    flag_re_run, new_val, new_val_itm, init_val_itm, action_meta = self._get_next_val(q, curr_val)
+
+                    if flag_re_run:
+                        df_mod[q["varname"]] = new_val
+
+                        df_mod["_changed"] = q["varname"]
+
+                        #df_out = df_mod.as_data_frame()
+                        #this_dict = df_out.to_dict()
+                        df_mod["new"] = 1
+                        df_mod["_id"] = None
+                        df_mod["_id_parent"] = input_vector["_id"]
+
+                        new_records.append(df_mod)
+
+            except Exception as e:
+                print(e)
+
+        return new_records
+
     def analyze_improvements(self, df_eval, target_class, base_line_scoring):
 
         improvement_results = []
@@ -185,8 +277,9 @@ class Coach:
 
             try:
 
+                _uuid = "df_" + str(uuid.uuid1())
 
-                df_mod = h2o.deep_copy(df_eval, 'df_mod')
+                df_mod = h2o.deep_copy(df_eval, _uuid)
 
                 impr = {
                     "varname": q["varname"]
@@ -204,7 +297,7 @@ class Coach:
                     if flag_re_run:
                         df_mod[q["varname"]] = new_val
 
-                    print(df_mod[q["varname"]])
+                    # print(df_mod[q["varname"]])
 
                 if flag_re_run:
                     # predict with slightly modified feature vector
@@ -226,7 +319,7 @@ class Coach:
         df_improvements = pd.DataFrame(improvement_results)
         df_improvements.sort_values(by="delta", ascending=False, inplace=True)
 
-        df_improvements= df_improvements[df_improvements["delta"]>0]
+        df_improvements = df_improvements[df_improvements["delta"]>0]
 
         return df_improvements
 
