@@ -43,7 +43,7 @@ class Coach:
 
             if isinstance(input_, dict):
                 print("dict")
-                df_input = pd.DataFrame(input_)
+                df_input = pd.DataFrame([input_])
             elif isinstance(input_, list):
                 print("list")
                 df_input = pd.DataFrame(input_)
@@ -61,11 +61,11 @@ class Coach:
 
             df_out = pred.as_data_frame()
 
-            return df_out
+            return df_out, df_eval
 
         except Exception as e:
 
-            return None
+            return None, None
 
     def _get_evaluation(self, df_eval):
         try:
@@ -114,9 +114,13 @@ class Coach:
 
         try:
             # input_vector needs to be a python dictionary, no list!
-            df_eval = self._prepare_evaluation(inputVector)
 
-            df_predicted = self._get_evaluation(df_eval)
+            df_predicted, df_eval = self.estimate_wellbeing(inputVector)
+
+            if df_predicted.shape[0] < 1:
+                return None, None
+            else:
+                df_predicted = df_predicted.to_dict("records")[0]
 
             try:
                 score = df_predicted["predict"]

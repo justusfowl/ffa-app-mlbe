@@ -2,6 +2,9 @@ questions = [
     {
         "varname": "AKoft12_k",
         "actionable": {
+            "flagShowTargetVal": True,
+            "sug_unit_en": "",
+            "sug_unit_de": "",
             "incrVal": 1,
             "skipVals": [8],
             "maxVal": 9,
@@ -265,6 +268,9 @@ questions = [
     {
         "varname": "ENgemBz1",
         "actionable": {
+            "flagShowTargetVal": True,
+            "sug_unit_en": "portions",
+            "sug_unit_de": "Portionen",
             "incrVal": 1,
             "skipVals": [],
             "maxVal": 10,
@@ -283,6 +289,9 @@ questions = [
     {
         "varname": "ENobstBz1",
         "actionable": {
+            "flagShowTargetVal" : True,
+            "sug_unit_en": "portions",
+            "sug_unit_de": "Portionen",
             "incrVal": 1,
             "skipVals": [],
             "maxVal": 10,
@@ -379,7 +388,7 @@ questions = [
             "skipVals": [],
             "maxVal": 5,
             "sug_en": "Be aware about your health.",
-            "sug_de": "Machen Sie sich Ihre Gesundheit ewtwas bewusster."
+            "sug_de": "Machen Sie sich Ihre Gesundheit etwas bewusster."
         },
         "q_de": "Wie stark achten Sie auf Ihre Gesundheit?",
         "q_en": "How health-concious would you rate yourself?",
@@ -853,8 +862,8 @@ questions = [
             "sug_en": "Get informed about a tetatnus vaccination - contact our staff for more information.",
             "sug_de": "Informieren Sie sich zur Tetanusimpfung - Kontaktieren Sie unsere Team für eine Beratung."
         },
-        "q_de": "Wann war Ihre letzte Tetanusimpfung?",
-        "q_en": "How long has the last tetanus vaccination been?",
+        "q_de": "Wurden Sie innerhalb der letzten 10 Jahre gegen Tetanus geimpft?",
+        "q_en": "Have you been vaccinated against tetanus within the past 10 years?",
         "type": "binary",
         "meta": [
             {
@@ -872,6 +881,9 @@ questions = [
     {
         "varname": "KAehispaq2",
         "actionable": {
+            "flagShowTargetVal" : True,
+            "sug_unit_en" : "days",
+            "sug_unit_de" : "Tage",
             "incrVal": 1,
             "skipVals": [],
             "maxVal": 7,
@@ -890,11 +902,14 @@ questions = [
     {
         "varname": "KAehispaq4",
         "actionable": {
+            "flagShowTargetVal": True,
+            "sug_unit_en": "days/week",
+            "sug_unit_de": "Tage/Woche",
             "incrVal": 1,
             "skipVals": [],
             "maxVal": 7,
-            "sug_en": "Consider moving more by bicycle (days / week).",
-            "sug_de": "Versuchen Sie's mal mit dem Fahrrad - zur Arbeit oder im Fitnessstudio (Tage / Woche)."
+            "sug_en": "Consider moving more by bicycle.",
+            "sug_de": "Versuchen Sie's mal mit dem Fahrrad - zur Arbeit oder im Fitnessstudio."
         },
         "q_de": "An wie vielen Tagen in der Woche benutzen Sie das Fahrrad?",
         "q_en": "How many days a week do you use the bicycle?",
@@ -908,11 +923,14 @@ questions = [
     {
         "varname": "KAehispaq8",
         "actionable": {
+            "flagShowTargetVal": True,
+            "sug_unit_en": "days/week",
+            "sug_unit_de": "Tage/Woche",
             "incrVal": 1,
             "skipVals": [],
             "maxVal": 7,
-            "sug_en": "Work out to strengthen your muscles (days / week).",
-            "sug_de": "Muskeltraining ist gut für Kräftigung und Ballance (Tage / Woche)."
+            "sug_en": "Work out to strengthen your muscles.",
+            "sug_de": "Muskeltraining ist gut für Kräftigung und Ballance."
         },
         "q_de": "An wie vielen Tagen in der Woche führen Sie Kräftigungsübungen durch?",
         "q_en": "How many days a week do you do strengthening exercises?",
@@ -951,7 +969,7 @@ questions = [
         "actionable": {
             "targetVal": 1,
             "sug_en": "Try going for a walk here and there - 150min / week can already make a difference.",
-            "sug_de": "Versuchen Sie Spaziergänge in Ihren Alltag zu integrieren - 150 Minuten / Woche machen bereits einen Unterschied.."
+            "sug_de": "Versuchen Sie Spaziergänge in Ihren Alltag zu integrieren - 150 Minuten / Woche machen bereits einen Unterschied."
         },
         "q_de": "Betätigen Sie sich gemäß der WHO Empfehlung mindestens 150 Min. in der Woche aerobe köperlich aktiv (incl. Gehen)?",
         "q_en": "According to WHO recommendations, are you physically active aerobically for at least 150 min/week (including walking)?",
@@ -1587,8 +1605,8 @@ questions = [
         "varname": "RCstat",
         "actionable": {
             "incrVal": 1,
-            "skipVals": [3],
-            "maxVal": 4,
+            "skipVals": [],
+            "maxVal": 3,
             "sug_en": "Reduce smoking",
             "sug_de": "Verringern Sie Ihr Rauchverhalten."
         },
